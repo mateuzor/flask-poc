@@ -128,6 +128,8 @@ git push origin main
 
 Verifique no Jenkins se o pipeline foi executado automaticamente.
 
+https://github.com/user-attachments/assets/3f820077-da79-413e-9273-ec883348e740
+
 ---
 
 ## ✅ O que o Pipeline faz
