@@ -1,29 +1,36 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11'
-        }
-    }
+    agent any
 
     stages {
-        stage('Build') {
+        stage('Install dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'python3 -m venv venv'
+                sh '. venv/bin/activate && pip install -r requirements.txt'
             }
         }
-        stage('Run Tests') {
+
+        stage('Run tests') {
             steps {
-                sh 'pytest'
+                sh '. venv/bin/activate && pytest --maxfail=1 --disable-warnings -q'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the project...'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploy stage - simulado'
             }
         }
     }
 
     post {
-        success {
-            echo 'Tests passed!'
-        }
-        failure {
-            echo 'Tests failed!'
+        always {
+            junit '**/test-results.xml'
         }
     }
 }
