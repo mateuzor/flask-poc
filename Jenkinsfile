@@ -1,40 +1,40 @@
 pipeline {
-  agent {
-    docker {
-      image 'python:3.11'
-    }
-  }
+    agent none
 
-  stages {
-    stage('Install dependencies') {
-      steps {
-        sh 'python -m venv venv'
-        sh '. venv/bin/activate && pip install -r requirements.txt'
-      }
+    environment {
+        IMAGE_NAME = "flask-app"
+        IMAGE_TAG = "flask-app:${env.BUILD_NUMBER}"
     }
 
-    stage('Run tests') {
-      steps {
-        sh '. venv/bin/activate && pytest --junitxml=test-results.xml --maxfail=1 --disable-warnings -q'
-      }
+    stages {
+        stage('Install & Test') {
+            agent {
+                docker { image 'python:3.11' }
+            }
+            steps {
+                sh 'pip install --upgrade pip'
+                sh 'pip install -r requirements.txt'
+                sh 'pytest --junitxml=test-results.xml'
+            }
+            post {
+                always {
+                    junit 'test-results.xml'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            agent any
+            steps {
+                script {
+                    sh "docker build -t $IMAGE_TAG ."
+                }
+            }
+        }
     }
 
-    stage('Build') {
-      steps {
-        echo 'Building the project...'
-      }
+    post {
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+        }
     }
-
-    stage('Deploy') {
-      steps {
-        echo 'Deploy stage - simulado'
-      }
-    }
-  }
-
-  post {
-    always {
-      junit 'test-results.xml'
-    }
-  }
 }
