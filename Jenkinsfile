@@ -6,6 +6,7 @@ pipeline {
         IMAGE_TAG = "flask-app:${env.BUILD_NUMBER}"
         CHARTS_REPO = "https://github.com/mateuzor/helm-chart.git"
         CHARTS_DIR = "helm-chart"
+        DEPLOY_NAMESPACE = "apps"
     }
 
     stages {
@@ -40,7 +41,7 @@ pipeline {
         stage('Deploy') {
             agent any
             steps {
-                sh 'helm upgrade --install flask-app $CHARTS_DIR/Flask-app --set image.repository=flask-app --set image.tag=latest'
+                sh 'helm upgrade --install flask-app $CHARTS_DIR/Flask-app --set image.repository=flask-app --set image.tag=latest --namespace $DEPLOY_NAMESPACE'
             }
         }
     }
